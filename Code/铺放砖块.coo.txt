@@ -1,0 +1,63 @@
+//铺放砖块
+#include<bits/stdc++.h>
+using namespace std;
+int i, n, sum = 10009, p[5], q[5], a[5], b[5];
+struct rectangle { int x, y; }brick[10000];
+bool used[5];
+
+bool cmp(rectangle a, rectangle b) { return a.x < b.x; }
+
+void judge(int l, int r)
+{
+    if (l * r < sum)
+    {
+        sum = l * r, brick[n = 1].x = l, brick[1].y = r;
+        if (l > r) swap(brick[1].x, brick[1].y);
+        return;
+    }
+    if (l * r == sum)
+    {
+        brick[++n].x = l, brick[n].y = r;
+        if (l > r) swap(brick[n].x, brick[n].y);
+    }
+}
+
+void dfs(int k)
+{
+    if (k > 4)
+    {
+        int l = 0, r = 0, i;
+        for (i = 1; i < 5; i++) l = max(l, p[i]), r += q[i];
+        judge(l, r);//1
+        for (l = r = 0, i = 1; i < 4; i++) l = max(l, p[i]), r += q[i];
+        judge(l + p[4], max(r, q[4]));//2
+        l = max(p[1], p[2]) + p[3], r = max(q[1] + q[2], q[3]);
+        judge(max(l, p[4]), r + q[4]);//3
+        l = max(p[1], p[2]), r = max(q[3], q[4]);
+        judge(l + p[3] + p[4], max(r, q[1] + q[2]));//5
+        l = max(p[1] + p[2], p[3] + p[4]);
+        if (q[1] >= q[2])
+            if (q[4] > q[3]) judge(l, q[1] + q[4]);
+            else
+                if (p[1] + p[3] <= l) judge(l, max(q[1] + q[4], q[2] + q[3]));//6
+        return;
+    }
+    for (int i = 1; i < 5; i++)
+        if (!used[i])
+        {
+            used[i] = 1;
+            p[k] = a[i], q[k] = b[i], dfs(k + 1);
+            p[k] = b[i], q[k] = a[i], dfs(k + 1);
+            used[i] = 0;
+        }
+}
+
+int main()
+{
+    for (i = 1; i < 5; i++) scanf("%d%d", &a[i], &b[i]);
+    dfs(1), sort(brick + 1, brick + n + 1, cmp), printf("%d\n", sum);
+    printf("%d %d\n", brick[1].x, brick[1].y);
+    for (i = 2; i <= n; i++)
+        if (brick[i].x != brick[i - 1].x) printf("%d %d\n", brick[i].x, brick[i].y);
+    return 0;
+}
